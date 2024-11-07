@@ -12,40 +12,36 @@ import java.util.TreeSet;
 
 public class Generator {
 
-    public static final String CHARSET_UTF8 = "UTF-8";
     public static final String SIGN_METHOD_SHA256 = "sha256";
     public static final String SIGN_METHOD_HMAC_SHA256 = "HmacSHA256";
 
     public static String signApiRequest(Map<String, String> params, String appSecret, String signMethod) throws IOException {
-// If you are using Business Interface, please do as step 1,add api_path into params.
-// params.put("method",apiName);
 
-// sort all text parameters
-        //String[] keys = params.keySet().toArray(new String[0]);
-
+        // sort all text parameters
         SortedSet<String> keys = new TreeSet<>(params.keySet());
-        System.out.println(keys);
 
-// connect all text parameters with key and value
+        // join key values
         StringBuilder query = new StringBuilder();
 
         for (String key : keys) {
             String value = params.get(key);
-            //if (areNotEmpty(key, value)) {
+            if (value == null || value.isEmpty()) {
+                System.out.println("Value for " + key + " is empty");
+            } else {
                 query.append(key).append(value);
-            //}
+            }
         }
 
-        System.out.println(query);
+        System.out.println("Spliced String: " + query);
 
-// sign the whole request
+        // UTF-8 encode and sing with sha256 and app secret
         byte[] bytes = null;
 
         if (signMethod.equals(SIGN_METHOD_SHA256)) {
             bytes = encryptHMACSHA256(query.toString(), appSecret);
         }
 
-// finally : transfer sign result from binary to upper hex string
+        // convert to hex
         return byte2hex(bytes);
     }
 
@@ -53,10 +49,10 @@ public class Generator {
     private static byte[] encryptHMACSHA256(String data, String secret) throws IOException {
         byte[] bytes = null;
         try {
-            SecretKey secretKey = new SecretKeySpec(secret.getBytes(CHARSET_UTF8), SIGN_METHOD_HMAC_SHA256);
+            SecretKey secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), SIGN_METHOD_HMAC_SHA256);
             Mac mac = Mac.getInstance(secretKey.getAlgorithm());
             mac.init(secretKey);
-            bytes = mac.doFinal(data.getBytes(CHARSET_UTF8));
+            bytes = mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
         } catch (GeneralSecurityException gse) {
             throw new IOException(gse.toString());
         }
@@ -64,9 +60,6 @@ public class Generator {
     }
 
 
-    /**
-     * Transfer binary array to HEX string.
-     */
     public static String byte2hex(byte[] bytes) {
         StringBuilder sign = new StringBuilder();
         for (int i = 0; i < bytes.length; i++) {
@@ -79,3 +72,4 @@ public class Generator {
         return sign.toString();
     }
 }
+
