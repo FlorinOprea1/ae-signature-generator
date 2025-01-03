@@ -7,7 +7,7 @@ public class Main {
     public static void main(String[] args) throws IOException {
 
         Map<String, String> params = Map.of(
-                "app_key", "510620",
+                "app_key", "510620", //get from App Console in the Aliexpress portal
                 "start_time", "2024-10-28 00:00:00",
                 "end_time", "2024-10-29 00:00:00",
                 "status", "Payment Completed",
@@ -19,7 +19,7 @@ public class Main {
 
         String signature = Generator.signApiRequest(
                 params,
-                "appSecret",
+                "appSecret", //get from App Console in the Aliexpress portal
                 "sha256"
         );
 
